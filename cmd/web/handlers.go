@@ -3,15 +3,14 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	//Check if the path has any unkown extensions
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
@@ -25,7 +24,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	//Read the template file into ts
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Print(err.Error())
+		app.serverError(w, r, err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -33,13 +32,13 @@ func home(w http.ResponseWriter, r *http.Request) {
 	//Execute the template to write in responsewriter
 	err = ts.ExecuteTemplate(w, "base", nil)
 	if err != nil {
-		log.Print(err.Error())
+		app.serverError(w, r, err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }
 
 // Sends a post request to add the class
-func addClass(w http.ResponseWriter, r *http.Request) {
+func (app *application) addClass(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.Header().Set("Allow", http.MethodPost)
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -49,7 +48,7 @@ func addClass(w http.ResponseWriter, r *http.Request) {
 }
 
 // redircts to the link for the class
-func viewClass(w http.ResponseWriter, r *http.Request) {
+func (app *application) viewClass(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
 	fmt.Fprintf(w, "Display a class with name %s...", name)
 }

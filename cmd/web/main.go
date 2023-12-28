@@ -2,20 +2,39 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
+// defines application to use for dependency injection for other things
+// like middleware and logging
+type application struct {
+	logger *slog.Logger
+}
+
 func main() {
-	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal(".env file could not be loaded")
+	}
 
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/class/add", addClass)
-	mux.HandleFunc("/class/view", viewClass)
-	log.Print("starting server on :5000")
+	//loads addr from PORT env variable
+	addr := ":" + os.Getenv("PORT")
+	//new logger
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	err := http.ListenAndServe(":5000", mux)
-	log.Fatal(err)
+	//new instance of an application
+	app := &application{
+		logger: logger,
+	}
+
+	logger.Info("Starting server", "addr", addr)
+
+	err = http.ListenAndServe(addr, app.routes())
+	logger.Error(err.Error())
+	os.Exit(1)
 }
