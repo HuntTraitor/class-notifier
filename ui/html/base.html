@@ -1,0 +1,23 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{template "title" .}} - Class Notifier</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'>
+</head>
+<body>
+    <header>
+        <h1><a href="/">HOME</a></h1>
+    </header>
+    {{template "nav" .}}
+    <main>
+        {{template "main" .}}
+    </main>
+    <footer>Created by <a href="https://instagram.com/hunttraitor">HuntTraitor</a></footer>
+    <script src="/static/js/main.js" type="text/javascript"></script>  
+</body>
+</html>
+{{end}}
