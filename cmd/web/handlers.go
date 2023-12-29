@@ -91,3 +91,31 @@ func (app *application) viewClass(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "%+v", class)
 }
+
+func (app *application) addNotification(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	email := "htratar@ucsc.edu"
+	classid := 31139
+	expires := 7
+
+	err := app.notifications.Insert(email, classid, expires)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	http.Redirect(w, r, "/notification/view", http.StatusSeeOther)
+
+}
+
+func (app *application) deleteNotification(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Delete notification..."))
+}
+
+func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Display list of notifications..."))
+}

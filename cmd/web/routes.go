@@ -13,5 +13,9 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("/", app.home)
 	mux.HandleFunc("/class/add", app.addClass)
 	mux.HandleFunc("/class/view", app.viewClass)
+
+	mux.HandleFunc("/notification/add", app.addNotification)
+	mux.HandleFunc("/notification/delete", app.deleteNotification)
+	mux.HandleFunc("/notification/view", app.viewNotifications)
 	return mux
 }
