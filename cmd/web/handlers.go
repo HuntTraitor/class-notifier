@@ -100,7 +100,7 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 	}
 
 	email := "htratar@ucsc.edu"
-	classid := 31139
+	classid := 30262
 	expires := 7
 
 	err := app.notifications.Insert(email, classid, expires)
@@ -113,9 +113,32 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 }
 
 func (app *application) deleteNotification(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Delete notification..."))
+	if r.Method != "DELETE" {
+		w.Header().Set("Allow", http.MethodDelete)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	email := "htratar@ucsc.edu"
+	classid := 31139
+
+	err := app.notifications.Delete(email, classid)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	http.Redirect(w, r, "/notification/view", http.StatusSeeOther)
 }
 
 func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Display list of notifications..."))
+	classes, err := app.notifications.List("htratar@ucsc.edu")
+
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	for _, class := range classes {
+		fmt.Fprintf(w, "%+v\n", class)
+	}
 }
