@@ -16,7 +16,7 @@ import (
 // defines application to use for dependency injection for other things
 // like middleware and logging
 type application struct {
-	logger *slog.Logger
+	logger  *slog.Logger
 	classes *models.ClassModel
 }
 
@@ -42,7 +42,7 @@ func main() {
 
 	//new instance of an application
 	app := &application{
-		logger: logger,
+		logger:  logger,
 		classes: &models.ClassModel{DB: db},
 	}
 
