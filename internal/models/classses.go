@@ -6,7 +6,7 @@ import (
 )
 
 type Class struct {
-	ID        int
+	ClassID   int
 	Name      string
 	Link      string
 	Professor string
@@ -16,8 +16,8 @@ type ClassModel struct {
 	DB *sql.DB
 }
 
-func (m *ClassModel) Insert(id int, name string, link string, professor string) (int, error) {
-	stmt := `INSERT INTO classes VALUES ($1, $2, $3, $4) RETURNING id`
+func (m *ClassModel) Insert(classid int, name string, link string, professor string) (int, error) {
+	stmt := `INSERT INTO classes VALUES ($1, $2, $3, $4) RETURNING classid`
 
 	tx, err := m.DB.Begin()
 	if err != nil {
@@ -25,7 +25,7 @@ func (m *ClassModel) Insert(id int, name string, link string, professor string) 
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec(stmt, id, name, link, professor)
+	_, err = tx.Exec(stmt, classid, name, link, professor)
 	if err != nil {
 		return 0, err
 	}
@@ -34,18 +34,18 @@ func (m *ClassModel) Insert(id int, name string, link string, professor string) 
 	if err != nil {
 		return 0, err
 	}
-	return id, nil
+	return classid, nil
 }
 
 func (m *ClassModel) Get(id int) (Class, error) {
 
-	stmt := `SELECT id, name, link, professor FROM classes
-	WHERE id = $1`
+	stmt := `SELECT classid, name, link, professor FROM classes
+	WHERE classid = $1`
 
 	row := m.DB.QueryRow(stmt, id)
 	var c Class
 
-	err := row.Scan(&c.ID, &c.Link, &c.Name, &c.Professor)
+	err := row.Scan(&c.ClassID, &c.Link, &c.Name, &c.Professor)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Class{}, ErrNoRecord
@@ -56,9 +56,9 @@ func (m *ClassModel) Get(id int) (Class, error) {
 	return c, nil
 }
 
-func (m *ClassModel) List() ([]Class, error) {
+func (m *ClassModel) Classlist() ([]Class, error) {
 
-	stmt := `SELECT id, name, link, professor FROM classes
+	stmt := `SELECT classid, name, link, professor FROM classes
 	ORDER BY name`
 
 	rows, err := m.DB.Query(stmt)
@@ -71,7 +71,7 @@ func (m *ClassModel) List() ([]Class, error) {
 
 	for rows.Next() {
 		var c Class
-		err = rows.Scan(&c.ID, &c.Name, &c.Link, &c.Professor)
+		err = rows.Scan(&c.ClassID, &c.Name, &c.Link, &c.Professor)
 		if err != nil {
 			return nil, err
 		}

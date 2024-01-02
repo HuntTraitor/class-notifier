@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	// "html/template"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -18,37 +18,27 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	classes, err := app.classes.List()
+	// add all relevant files to slice
+	files := []string{
+		"./ui/html/base.html",
+		"./ui/html/partials/nav.html",
+		"./ui/html/pages/home.html",
+	}
+
+	//Read the template file into ts
+	ts, err := template.ParseFiles(files...)
 	if err != nil {
 		app.serverError(w, r, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	for _, class := range classes {
-		fmt.Fprintf(w, "%+v\n", class)
+	//Execute the template to write in responsewriter
+	err = ts.ExecuteTemplate(w, "base", nil)
+	if err != nil {
+		app.serverError(w, r, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
-
-	//add all relevant files to slice
-	// files := []string{
-	// 	"./ui/html/base.html",
-	// 	"./ui/html/partials/nav.html",
-	// 	"./ui/html/pages/home.html",
-	// }
-
-	// //Read the template file into ts
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// //Execute the template to write in responsewriter
-	// err = ts.ExecuteTemplate(w, "base", nil)
-	// if err != nil {
-	// 	app.serverError(w, r, err)
-	// 	http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	// }
 }
 
 // Sends a post request to add the class
@@ -59,12 +49,12 @@ func (app *application) addClass(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := 31139
+	classid := 31139
 	name := "CSE 102 - 01   Introduction to Analysis of Algorithms"
 	link := "https://pisa.ucsc.edu/class_search/index.php?action=detail&class_data=YToyOntzOjU6IjpTVFJNIjtzOjQ6IjIyNDAiO3M6MTA6IjpDTEFTU19OQlIiO3M6NToiMzExMzkiO30%253D"
 	professor := "Chatziafratis,E."
 
-	id, err := app.classes.Insert(id, name, link, professor)
+	id, err := app.classes.Insert(classid, name, link, professor)
 	if err != nil {
 		app.serverError(w, r, err)
 		return

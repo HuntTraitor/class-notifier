@@ -63,7 +63,7 @@ func (n *NotificationModel) List(email string) ([]Notification, error) {
 
 	stmt := `SELECT n.email, c.name
 	FROM classes c, notifications n
-	WHERE c.id = n.classid
+	WHERE c.classid = n.classid
 	AND n.email = $1`
 
 	rows, err := n.DB.Query(stmt, email)
