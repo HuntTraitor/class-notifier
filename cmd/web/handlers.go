@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -18,27 +17,16 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// add all relevant files to slice
-	files := []string{
-		"./ui/html/base.html",
-		"./ui/html/partials/nav.html",
-		"./ui/html/pages/home.html",
-	}
-
-	//Read the template file into ts
-	ts, err := template.ParseFiles(files...)
+	classes, err := app.classes.Classlist()
 	if err != nil {
 		app.serverError(w, r, err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	//Execute the template to write in responsewriter
-	err = ts.ExecuteTemplate(w, "base", nil)
-	if err != nil {
-		app.serverError(w, r, err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	}
+	app.render(w, r, http.StatusOK, "home.html", templateData{
+		Classes: classes,
+	})
 }
 
 // Sends a post request to add the class

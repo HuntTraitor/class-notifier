@@ -6,9 +6,9 @@
         <form class="search-bar">
             <input list="classList" id="classSearch" name="classSeatch" placeholder="Search...">
             <datalist id="classList">
-                <option value="Test1">
-                <option value="Test2">
-                <option value="Test3">
+                {{range .Classes}}
+                    <option value="{{.Name}}">
+                {{end}}
             </datalist>
         </form>
         <button>Add</button>  

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"html/template"
 	"log"
 	"log/slog"
 	"net/http"
@@ -19,6 +20,7 @@ type application struct {
 	logger        *slog.Logger
 	classes       *models.ClassModel
 	notifications *models.NotificationModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -41,11 +43,18 @@ func main() {
 
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	//new instance of an application
 	app := &application{
 		logger:        logger,
 		classes:       &models.ClassModel{DB: db},
 		notifications: &models.NotificationModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	logger.Info("Starting server", "addr", addr)
