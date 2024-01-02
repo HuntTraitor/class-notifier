@@ -2,23 +2,21 @@
 
 {{define "main"}}
     <h2>Class List</h2>
-    <div class="dropdown">
-        <button onclick="showClasses()" class="dropbtn">Search</button>
-        <button class="add-button">Add</button>
-        <div id="searchDropdown" class="dropdown-content">
-            <input type="text" placeholder="Search..." id="searchInput" onkeyup="filterFunction()">
-            <a href="#test1">Test1</a>
-            <a href="#test2">Test2</a>
-            <a href="#test3">Test3</a>
-        </div>
+    <div class="search-wrapper">
+        <form class="search-bar">
+            <input list="classList" id="classSearch" name="classSeatch" placeholder="Search...">
+            <datalist id="classList">
+                <option value="Test1">
+                <option value="Test2">
+                <option value="Test3">
+            </datalist>
+        </form>
+        <button>Add</button>  
     </div>
     <table class="class-table">
-        <!-- range -->
         <tr>
             <td>Class link</td>
             <td><button>Delete</button></td>
         </tr>
-        <!-- end -->
     </table>
-    <!-- <p>There's nothing to see here... yet!</p> -->
 {{end}}
