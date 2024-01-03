@@ -14,9 +14,11 @@
         <button>Add</button>  
     </div>
     <table class="class-table">
+        {{range .Notifications}}
         <tr>
-            <td>Class link</td>
+            <td><a href="{{.Link}}">{{.Name}}</a></td>
             <td><button>Delete</button></td>
         </tr>
+        {{end}}
     </table>
 {{end}}

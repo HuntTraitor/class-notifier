@@ -2,13 +2,11 @@ package models
 
 import (
 	"database/sql"
-	"time"
 )
 
 type Notification struct {
-	Email     string
-	Classname string
-	Expires   time.Time
+	Name string
+	Link string
 }
 
 type NotificationModel struct {
@@ -59,9 +57,9 @@ func (n *NotificationModel) Delete(email string, classid int) error {
 	return nil
 }
 
-func (n *NotificationModel) List(email string) ([]Notification, error) {
+func (n *NotificationModel) NotificationList(email string) ([]Notification, error) {
 
-	stmt := `SELECT n.email, c.name
+	stmt := `SELECT c.name, c.link
 	FROM classes c, notifications n
 	WHERE c.classid = n.classid
 	AND n.email = $1`
@@ -77,7 +75,7 @@ func (n *NotificationModel) List(email string) ([]Notification, error) {
 
 	for rows.Next() {
 		var n Notification
-		err = rows.Scan(&n.Email, &n.Classname)
+		err = rows.Scan(&n.Name, &n.Link)
 		if err != nil {
 			return nil, err
 		}

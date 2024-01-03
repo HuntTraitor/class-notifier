@@ -24,8 +24,16 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	notifications, err := app.notifications.NotificationList("htratar@ucsc.edu")
+	if err != nil {
+		app.serverError(w, r, err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	app.render(w, r, http.StatusOK, "home.html", templateData{
-		Classes: classes,
+		Classes:       classes,
+		Notifications: notifications,
 	})
 }
 
@@ -109,7 +117,7 @@ func (app *application) deleteNotification(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request) {
-	classes, err := app.notifications.List("htratar@ucsc.edu")
+	classes, err := app.notifications.NotificationList("htratar@ucsc.edu")
 
 	if err != nil {
 		app.serverError(w, r, err)
