@@ -3,15 +3,14 @@
 {{define "main"}}
     <h2>Class List</h2>
     <div class="search-wrapper">
-        <form class="search-bar">
-            <input list="classList" id="classSearch" name="classSeatch" placeholder="Search...">
-            <datalist id="classList">
+        <form class="search-bar" action="/notification/add" method="POST">
+            <select id="classList" name="classId">
                 {{range .Classes}}
-                    <option value="{{.Name}}">
+                    <option value="{{.ClassID}}">{{.Name}}</option>
                 {{end}}
-            </datalist>
+            </select>
+            <button type="submit">Add</button>
         </form>
-        <button>Add</button>  
     </div>
     <table class="class-table">
         {{range .Notifications}}

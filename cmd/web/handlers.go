@@ -72,16 +72,27 @@ func (app *application) viewClass(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) addNotification(w http.ResponseWriter, r *http.Request) {
 
-	email := "htratar@ucsc.edu"
-	classid := 30262
-	expires := 7
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
 
-	err := app.notifications.Insert(email, classid, expires)
+	classid, err := strconv.Atoi(r.PostFormValue("classId"))
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
-	http.Redirect(w, r, "/notification/view", http.StatusSeeOther)
+
+	email := "htratar@ucsc.edu"
+	expires := 7
+
+	err = app.notifications.Insert(email, classid, expires)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 
 }
 
