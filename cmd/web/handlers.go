@@ -7,16 +7,11 @@ import (
 	"strconv"
 
 	"github.com/hunttraitor/class-notifier/internal/models"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-
-	//Check if the path has any unkown extensions
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
-
 	classes, err := app.classes.Classlist()
 	if err != nil {
 		app.serverError(w, r, err)
@@ -39,11 +34,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 // Sends a post request to add the class
 func (app *application) addClass(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	classid := 31139
 	name := "CSE 102 - 01   Introduction to Analysis of Algorithms"
@@ -60,9 +50,11 @@ func (app *application) addClass(w http.ResponseWriter, r *http.Request) {
 
 // redircts to the link for the class
 func (app *application) viewClass(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	params := httprouter.ParamsFromContext(r.Context())
+
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
-		http.NotFound(w, r)
+		app.notFound(w)
 		return
 	}
 
@@ -79,11 +71,6 @@ func (app *application) viewClass(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) addNotification(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.Header().Set("Allow", http.MethodPost)
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	email := "htratar@ucsc.edu"
 	classid := 30262
@@ -99,11 +86,6 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 }
 
 func (app *application) deleteNotification(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "DELETE" {
-		w.Header().Set("Allow", http.MethodDelete)
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
 
 	email := "htratar@ucsc.edu"
 	classid := 31139
@@ -117,6 +99,7 @@ func (app *application) deleteNotification(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request) {
+
 	classes, err := app.notifications.NotificationList("htratar@ucsc.edu")
 
 	if err != nil {
