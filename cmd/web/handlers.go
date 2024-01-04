@@ -98,15 +98,20 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 
 func (app *application) deleteNotification(w http.ResponseWriter, r *http.Request) {
 
-	email := "htratar@ucsc.edu"
-	classid := 31139
+	params := httprouter.ParamsFromContext(r.Context())
 
-	err := app.notifications.Delete(email, classid)
+	notificationid, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
+		app.notFound(w)
+		return
+	}
+
+	err = app.notifications.Delete(notificationid)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
-	http.Redirect(w, r, "/notification/view", http.StatusSeeOther)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request) {

@@ -22,7 +22,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/class/view/:id", app.viewClass)
 
 	router.HandlerFunc(http.MethodPost, "/notification/add", app.addNotification)
-	router.HandlerFunc(http.MethodDelete, "/notification/delete", app.deleteNotification)
+	router.HandlerFunc(http.MethodPost, "/notification/delete/:id", app.deleteNotification)
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	return standard.Then(router)

@@ -5,8 +5,9 @@ import (
 )
 
 type Notification struct {
-	Name string
-	Link string
+	NotificationID int
+	Name           string
+	Link           string
 }
 
 type NotificationModel struct {
@@ -14,7 +15,7 @@ type NotificationModel struct {
 }
 
 func (n *NotificationModel) Insert(email string, classid int, expires int) error {
-	stmt := `INSERT INTO notifications VALUES ($1, $2, CURRENT_TIMESTAMP + $3 * INTERVAL '1 day')`
+	stmt := `INSERT INTO notifications(email, classid, expires) VALUES ($1, $2, CURRENT_TIMESTAMP + $3 * INTERVAL '1 day')`
 
 	tx, err := n.DB.Begin()
 	if err != nil {
@@ -34,10 +35,10 @@ func (n *NotificationModel) Insert(email string, classid int, expires int) error
 	return nil
 }
 
-func (n *NotificationModel) Delete(email string, classid int) error {
+func (n *NotificationModel) Delete(notificationid int) error {
 
 	stmt := `DELETE FROM notifications
-	WHERE (email, classid) = ($1, $2)`
+	WHERE notificationid = $1`
 
 	tx, err := n.DB.Begin()
 	if err != nil {
@@ -45,7 +46,7 @@ func (n *NotificationModel) Delete(email string, classid int) error {
 	}
 	defer tx.Rollback()
 
-	_, err = tx.Exec(stmt, email, classid)
+	_, err = tx.Exec(stmt, notificationid)
 	if err != nil {
 		return err
 	}
@@ -59,7 +60,7 @@ func (n *NotificationModel) Delete(email string, classid int) error {
 
 func (n *NotificationModel) NotificationList(email string) ([]Notification, error) {
 
-	stmt := `SELECT c.name, c.link
+	stmt := `SELECT n.notificationid, c.name, c.link
 	FROM classes c, notifications n
 	WHERE c.classid = n.classid
 	AND n.email = $1`
@@ -75,7 +76,7 @@ func (n *NotificationModel) NotificationList(email string) ([]Notification, erro
 
 	for rows.Next() {
 		var n Notification
-		err = rows.Scan(&n.Name, &n.Link)
+		err = rows.Scan(&n.NotificationID, &n.Name, &n.Link)
 		if err != nil {
 			return nil, err
 		}

@@ -16,7 +16,11 @@
         {{range .Notifications}}
         <tr>
             <td><a href="{{.Link}}">{{.Name}}</a></td>
-            <td><button>Delete</button></td>
+            <td>
+                <form action="/notification/delete/{{.NotificationID}}" method="POST">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
         </tr>
         {{end}}
     </table>
