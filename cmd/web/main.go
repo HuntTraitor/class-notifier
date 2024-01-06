@@ -7,20 +7,25 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/hunttraitor/class-notifier/internal/models"
 
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/joho/godotenv"
+
 	_ "github.com/lib/pq"
 )
 
 // defines application to use for dependency injection for other things
 // like middleware and logging
 type application struct {
-	logger        *slog.Logger
-	classes       *models.ClassModel
-	notifications *models.NotificationModel
-	templateCache map[string]*template.Template
+	logger         *slog.Logger
+	classes        *models.ClassModel
+	notifications  *models.NotificationModel
+	sessionManager *scs.SessionManager
+	templateCache  map[string]*template.Template
 }
 
 func main() {
@@ -49,12 +54,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	sessionManager := scs.New()
+	sessionManager.Store = postgresstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	//new instance of an application
 	app := &application{
-		logger:        logger,
-		classes:       &models.ClassModel{DB: db},
-		notifications: &models.NotificationModel{DB: db},
-		templateCache: templateCache,
+		logger:         logger,
+		classes:        &models.ClassModel{DB: db},
+		notifications:  &models.NotificationModel{DB: db},
+		sessionManager: sessionManager,
+		templateCache:  templateCache,
 	}
 
 	logger.Info("Starting server", "addr", addr)

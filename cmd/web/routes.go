@@ -17,12 +17,14 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
-	router.HandlerFunc(http.MethodGet, "/", app.home)
-	router.HandlerFunc(http.MethodPost, "/class/add", app.addClass)
-	router.HandlerFunc(http.MethodGet, "/class/view/:id", app.viewClass)
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
 
-	router.HandlerFunc(http.MethodPost, "/notification/add", app.addNotification)
-	router.HandlerFunc(http.MethodPost, "/notification/delete/:id", app.deleteNotification)
+	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
+	router.Handler(http.MethodPost, "/class/add", dynamic.ThenFunc(app.addClass))
+	router.Handler(http.MethodGet, "/class/view/:id", dynamic.ThenFunc(app.viewClass))
+
+	router.Handler(http.MethodPost, "/notification/add", dynamic.ThenFunc(app.addNotification))
+	router.Handler(http.MethodPost, "/notification/delete/:id", dynamic.ThenFunc(app.deleteNotification))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	return standard.Then(router)

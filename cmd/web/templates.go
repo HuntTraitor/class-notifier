@@ -11,6 +11,8 @@ type templateData struct {
 	Class         models.Class
 	Classes       []models.Class
 	Notifications []models.Notification
+	Form          any
+	Flash         string
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

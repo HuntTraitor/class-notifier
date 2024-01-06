@@ -40,3 +40,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 		app.serverError(w, r, err)
 	}
 }
+
+func (app *application) newTemplateData(r *http.Request) templateData {
+	return templateData{
+		Flash: app.sessionManager.PopString(r.Context(), "flash"),
+	}
+}

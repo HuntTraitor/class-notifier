@@ -3,5 +3,5 @@ CREATE TABLE IF NOT EXISTS users (
     name CHAR(256) NOT NULL,
     email CHAR(256) NOT NULL UNIQUE,
     hashed_password CHAR(60) NOT NULL,
-    created TIMESTAMP
+    created TIMESTAMP NOT NULL
 );

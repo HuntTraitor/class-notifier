@@ -26,10 +26,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.render(w, r, http.StatusOK, "home.html", templateData{
-		Classes:       classes,
-		Notifications: notifications,
-	})
+	data := app.newTemplateData(r)
+	data.Classes = classes
+	data.Notifications = notifications
+	app.render(w, r, http.StatusOK, "home.html", data)
 }
 
 // Sends a post request to add the class
@@ -92,6 +92,9 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 		app.serverError(w, r, err)
 		return
 	}
+
+	app.sessionManager.Put(r.Context(), "flash", "Class notification successfully added!")
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 
 }
@@ -111,6 +114,9 @@ func (app *application) deleteNotification(w http.ResponseWriter, r *http.Reques
 		app.serverError(w, r, err)
 		return
 	}
+
+	app.sessionManager.Put(r.Context(), "flash", "Class notification successfully deleted!")
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
