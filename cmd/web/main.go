@@ -25,6 +25,7 @@ type application struct {
 	logger         *slog.Logger
 	classes        *models.ClassModel
 	notifications  *models.NotificationModel
+	users          *models.UserModel
 	sessionManager *scs.SessionManager
 	templateCache  map[string]*template.Template
 }
@@ -65,6 +66,7 @@ func main() {
 		logger:         logger,
 		classes:        &models.ClassModel{DB: db},
 		notifications:  &models.NotificationModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		sessionManager: sessionManager,
 		templateCache:  templateCache,
 	}
