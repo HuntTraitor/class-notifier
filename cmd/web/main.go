@@ -14,6 +14,7 @@ import (
 
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
+	"github.com/go-playground/form/v4"
 	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
@@ -28,6 +29,7 @@ type application struct {
 	users          *models.UserModel
 	sessionManager *scs.SessionManager
 	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
 }
 
 func main() {
@@ -61,6 +63,8 @@ func main() {
 	sessionManager.Lifetime = 12 * time.Hour
 	sessionManager.Cookie.Secure = true
 
+	formDecoder := form.NewDecoder()
+
 	//new instance of an application and server
 	app := &application{
 		logger:         logger,
@@ -69,6 +73,7 @@ func main() {
 		users:          &models.UserModel{DB: db},
 		sessionManager: sessionManager,
 		templateCache:  templateCache,
+		formDecoder:    formDecoder,
 	}
 
 	tlsConfig := &tls.Config{

@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
+
+	"github.com/go-playground/form/v4"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -50,4 +53,25 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		Flash: app.sessionManager.PopString(r.Context(), "flash"),
 	}
+}
+
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+
+	//parse the form
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	//call Decode on our postform
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		//this if for is the dst is invalid we want to panic
+		var invalidDecoderError *form.InvalidDecoderError
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+		return err
+	}
+	return nil
 }

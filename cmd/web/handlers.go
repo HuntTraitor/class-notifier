@@ -7,9 +7,18 @@ import (
 	"strconv"
 
 	"github.com/hunttraitor/class-notifier/internal/models"
+	"github.com/hunttraitor/class-notifier/internal/models/validator"
 
 	"github.com/julienschmidt/httprouter"
 )
+
+type userSignupForm struct {
+	Name                string `form:"name"`
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	ConfirmedPassword   string `form:"confirmedpassword"`
+	validator.Validator `form:"-"`
+}
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	classes, err := app.classes.Classlist()
@@ -135,10 +144,37 @@ func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display an HTML form for signing up a new user...")
+	data := app.newTemplateData(r)
+	data.Form = userSignupForm{}
+	app.render(w, r, http.StatusOK, "signup.html", data)
 }
 
 func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
+	var form userSignupForm
+
+	//decodes form to check if its a valid form
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	//setting up validators for form fields
+	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
+	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
+	form.CheckField(validator.MinChars(form.Password, 8), "password", "This field msut be at least 8 characters long")
+	form.CheckField(validator.NotBlank(form.ConfirmedPassword), "confirmedpassword", "This field cannot be blank")
+	form.CheckField(validator.Equal(form.Password, form.ConfirmedPassword), "confirmedpassword", "Password must match")
+
+	//If there is a validation error post form with errors
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "signup.html", data)
+		return
+	}
 	fmt.Fprintln(w, "Create a new user...")
 }
 
