@@ -92,3 +92,17 @@ main {
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
+nav {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 20px;
+}
+
+.user-options {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 25px;
+}

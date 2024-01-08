@@ -1,5 +1,14 @@
 {{define "nav"}}
 <nav>
-    <a href="/">HOME</a>
+    <div class="home">
+        <a href="/">HOME</a>
+    </div>
+    <div class="user-options">
+        <a href="/user/signup">Signup</a>
+        <a href="/user/login">Login</a>
+        <form action="/user/logout" method="POST">
+            <button>Logout</button>
+        </form>
+    </div>
 </nav>
 {{end}}
