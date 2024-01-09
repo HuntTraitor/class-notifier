@@ -23,14 +23,16 @@ func (app *application) routes() http.Handler {
 	router.Handler(http.MethodPost, "/class/add", dynamic.ThenFunc(app.addClass))
 	router.Handler(http.MethodGet, "/class/view/:id", dynamic.ThenFunc(app.viewClass))
 
-	router.Handler(http.MethodPost, "/notification/add", dynamic.ThenFunc(app.addNotification))
-	router.Handler(http.MethodPost, "/notification/delete/:id", dynamic.ThenFunc(app.deleteNotification))
-
 	router.Handler(http.MethodGet, "/user/signup", dynamic.ThenFunc(app.userSignup))
 	router.Handler(http.MethodPost, "/user/signup", dynamic.ThenFunc(app.userSignupPost))
 	router.Handler(http.MethodGet, "/user/login", dynamic.ThenFunc(app.userLogin))
 	router.Handler(http.MethodPost, "/user/login", dynamic.ThenFunc(app.userLoginPost))
-	router.Handler(http.MethodPost, "/user/logout", dynamic.ThenFunc(app.userLogoutPost))
+
+	protected := dynamic.Append(app.requireAuthentication)
+
+	router.Handler(http.MethodPost, "/notification/add", protected.ThenFunc(app.addNotification))
+	router.Handler(http.MethodPost, "/notification/delete/:id", protected.ThenFunc(app.deleteNotification))
+	router.Handler(http.MethodPost, "/user/logout", protected.ThenFunc(app.userLogoutPost))
 
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	return standard.Then(router)
