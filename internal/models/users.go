@@ -84,22 +84,6 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return userid, nil
 }
 
-// probably a better way to do this - will implement later
-func (m *UserModel) GetEmail(id int) (string, error) {
-	var email string
-	stmt := `SELECT email FROM users WHERE userid = $1`
-
-	err := m.DB.QueryRow(stmt, id).Scan(&email)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", ErrNoRecord
-		} else {
-			return "", err
-		}
-	}
-	return email, nil
-}
-
 func (m *UserModel) Exsits(userid int) (bool, error) {
 	var exists bool
 

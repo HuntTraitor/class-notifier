@@ -27,6 +27,7 @@ type userLoginForm struct {
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	//fetches classes from database for every call to home even if user is not authenticated
 	classes, err := app.classes.Classlist()
 	if err != nil {
 		app.serverError(w, r, err)
@@ -40,12 +41,10 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email, err := app.users.GetEmail(app.sessionManager.GetInt(r.Context(), "authenticatedUserID"))
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
+	//fetches email from session
+	email := app.sessionManager.GetString(r.Context(), "authenticatedUserEmail")
 
+	//Fetches notifications from database for user
 	notifications, err := app.notifications.NotificationList(email)
 	if err != nil {
 		app.serverError(w, r, err)
@@ -111,12 +110,9 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 	}
 
 	expires := 7
-
-	email, err := app.users.GetEmail(app.sessionManager.GetInt(r.Context(), "authenticatedUserID"))
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
+	
+	//gets email from user session
+	email := app.sessionManager.GetString(r.Context(), "authenticatedUserEmail")
 
 	err = app.notifications.Insert(email, classid, expires)
 	if err != nil {
@@ -265,6 +261,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	//add a authenticatedUserID field to the session to save login
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+	app.sessionManager.Put(r.Context(), "authenticatedUserEmail", form.Email)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
@@ -277,6 +274,7 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	}
 	//remove authenticatedUserID on logout
 	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+	app.sessionManager.Remove(r.Context(), "authenticatedUserEmail")
 	app.sessionManager.Put(r.Context(), "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

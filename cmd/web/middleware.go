@@ -49,6 +49,7 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	})
 }
 
+// authenticates the user on every request to make sure they are still valid
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
