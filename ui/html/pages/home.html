@@ -1,18 +1,19 @@
 {{define "title"}}Home{{end}}
 
 {{define "main"}}
-    <h2>Class List</h2>
-    <div class="search-wrapper">
-        <form class="search-bar" action="/notification/add" method="POST">
-            <select id="classList" name="classId">
-                {{range .Classes}}
-                    <option value="{{.ClassID}}">{{.Name}}</option>
-                {{end}}
-            </select>
-            <button type="submit">Add</button>
-        </form>
-    </div>
-    <table class="class-table">
+<h2>Class List</h2>
+<div class="search-wrapper">
+    <form class="search-bar" action="/notification/add" method="POST">
+        <select id="classList" name="classId">
+            {{range .Classes}}
+                <option value="{{.ClassID}}">{{.Name}}</option>
+            {{end}}
+        </select>
+        <button type="submit">Add</button>
+    </form>
+</div>
+<table class="class-table">
+    {{if .IsAuthenticated}}
         {{range .Notifications}}
         <tr>
             <td><a href="{{.Link}}">{{.Name}}</a></td>
@@ -23,5 +24,8 @@
             </td>
         </tr>
         {{end}}
-    </table>
+    {{else}}
+        <h1>Log in to view notifications</h1>
+    {{end}}
+</table>
 {{end}}

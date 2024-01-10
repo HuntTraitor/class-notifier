@@ -30,14 +30,25 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	classes, err := app.classes.Classlist()
 	if err != nil {
 		app.serverError(w, r, err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	notifications, err := app.notifications.NotificationList("htratar@ucsc.edu")
+	if !app.isAuthenticated(r) {
+		data := app.newTemplateData(r)
+		data.Classes = classes
+		app.render(w, r, http.StatusOK, "home.html", data)
+		return
+	}
+
+	email, err := app.users.GetEmail(app.sessionManager.GetInt(r.Context(), "authenticatedUserID"))
 	if err != nil {
 		app.serverError(w, r, err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	notifications, err := app.notifications.NotificationList(email)
+	if err != nil {
+		app.serverError(w, r, err)
 		return
 	}
 
@@ -99,8 +110,13 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	email := "htratar@ucsc.edu"
 	expires := 7
+
+	email, err := app.users.GetEmail(app.sessionManager.GetInt(r.Context(), "authenticatedUserID"))
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
 
 	err = app.notifications.Insert(email, classid, expires)
 	if err != nil {
@@ -111,7 +127,6 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 	app.sessionManager.Put(r.Context(), "flash", "Class notification successfully added!")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
-
 }
 
 func (app *application) deleteNotification(w http.ResponseWriter, r *http.Request) {
