@@ -4,6 +4,7 @@
 <h2>Class List</h2>
 <div class="search-wrapper">
     <form class="search-bar" action="/notification/add" method="POST">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <select id="classList" name="classId">
             {{range .Classes}}
                 <option value="{{.ClassID}}">{{.Name}}</option>
@@ -19,6 +20,7 @@
             <td><a href="{{.Link}}">{{.Name}}</a></td>
             <td>
                 <form action="/notification/delete/{{.NotificationID}}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
                     <button type="submit">Delete</button>
                 </form>
             </td>

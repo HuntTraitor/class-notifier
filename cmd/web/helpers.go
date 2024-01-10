@@ -8,6 +8,7 @@ import (
 	"runtime/debug"
 
 	"github.com/go-playground/form/v4"
+	"github.com/justinas/nosurf"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -49,10 +50,12 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	buf.WriteTo(w)
 }
 
+// adding new template data for every request
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
+		CSRFToken:       nosurf.Token(r),
 	}
 }
 

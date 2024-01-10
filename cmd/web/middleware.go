@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
+// Adds some headers for security reasons
 func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Security-Policy",
@@ -18,6 +21,7 @@ func secureHeaders(next http.Handler) http.Handler {
 	})
 }
 
+// logs requests in our structured logger
 func (app *application) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var (
@@ -28,11 +32,11 @@ func (app *application) logRequest(next http.Handler) http.Handler {
 		)
 
 		app.logger.Info("recieved request", "ip", ip, "proto", proto, "method", method, "uri", uri)
-
 		next.ServeHTTP(w, r)
 	})
 }
 
+// requires authentication for specific routes
 func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !app.isAuthenticated(r) {
@@ -44,6 +48,18 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	})
 }
 
+// Uses a customized CSRF cookie for token based mitigation
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+	return csrfHandler
+}
+
+// default middleware function for gracefully recovering from a panic
 func (app *application) recoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
