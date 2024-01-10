@@ -84,6 +84,7 @@ func (m *UserModel) Authenticate(email, password string) (int, error) {
 	return userid, nil
 }
 
+// probably a better way to do this - will implement later
 func (m *UserModel) GetEmail(id int) (string, error) {
 	var email string
 	stmt := `SELECT email FROM users WHERE userid = $1`
@@ -99,6 +100,11 @@ func (m *UserModel) GetEmail(id int) (string, error) {
 	return email, nil
 }
 
-func (m *UserModel) Exsits(id int) (bool, error) {
-	return false, nil
+func (m *UserModel) Exsits(userid int) (bool, error) {
+	var exists bool
+
+	stmt := `SELECT EXISTS(SELECT true FROM users WHERE userid = $1)`
+
+	err := m.DB.QueryRow(stmt, userid).Scan(&exists)
+	return exists, err
 }
