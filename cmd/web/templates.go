@@ -2,9 +2,11 @@ package main
 
 import (
 	"html/template"
+	"io/fs"
 	"path/filepath"
 
 	"github.com/hunttraitor/class-notifier/internal/models"
+	"github.com/hunttraitor/class-notifier/ui"
 )
 
 type templateData struct {
@@ -21,7 +23,8 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./ui/html/pages/*.html")
+	//store embed html pages into pages
+	pages, err := fs.Glob(ui.Files, "html/pages/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -29,26 +32,21 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		//parse base template files into ts
-		ts, err := template.ParseFiles("./ui/html/base.html")
+		//filepath patterns we want to parse
+		patterns := []string{
+			"html/base.html",
+			"html/partials/*.html",
+			page,
+		}
+
+		//parse the template files into ts
+		ts, err := template.New(name).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
-
-		//parse all partials into ts
-		ts, err = ts.ParseGlob("./ui/html/partials/*.html")
-		if err != nil {
-			return nil, err
-		}
-
-		//call parsefiles on ts
-		ts, err = ts.ParseFiles(page)
-		if err != nil {
-			return nil, err
-		}
-
-		//add ts to map for caching
+		//store into in memory cache
 		cache[name] = ts
+
 	}
 	return cache, nil
 }

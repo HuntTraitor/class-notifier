@@ -110,7 +110,7 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 	}
 
 	expires := 7
-	
+
 	//gets email from user session
 	email := app.sessionManager.GetString(r.Context(), "authenticatedUserEmail")
 
