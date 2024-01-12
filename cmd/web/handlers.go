@@ -143,7 +143,8 @@ func (app *application) deleteNotification(w http.ResponseWriter, r *http.Reques
 
 	app.sessionManager.Put(r.Context(), "flash", "Class notification successfully deleted!")
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	//redirect using HTMX
+	app.redirect(w)
 }
 
 func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request) {

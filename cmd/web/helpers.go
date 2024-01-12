@@ -88,3 +88,8 @@ func (app *application) isAuthenticated(r *http.Request) bool {
 	}
 	return isAuthenticated
 }
+
+// sets a redirect header for HTMX
+func (app *application) redirect(w http.ResponseWriter) {
+	w.Header().Set("HX-Redirect", "/")
+}

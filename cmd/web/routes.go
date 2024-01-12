@@ -39,7 +39,7 @@ func (app *application) routes() http.Handler {
 
 	//using the new protected middleware on top of dynamic for credential specific routes
 	router.Handler(http.MethodPost, "/notification/add", protected.ThenFunc(app.addNotification))
-	router.Handler(http.MethodPost, "/notification/delete/:id", protected.ThenFunc(app.deleteNotification))
+	router.Handler(http.MethodDelete, "/notification/delete/:id", protected.ThenFunc(app.deleteNotification))
 	router.Handler(http.MethodPost, "/user/logout", protected.ThenFunc(app.userLogoutPost))
 
 	//Final middleware for all routes

@@ -19,10 +19,7 @@
         <tr>
             <td><a href="{{.Link}}">{{.Name}}</a></td>
             <td>
-                <form action="/notification/delete/{{.NotificationID}}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-                    <button type="submit">Delete</button>
-                </form>
+                <button hx-delete="/notification/delete/{{.NotificationID}}" hx-trigger="click" hx-headers='{"X-CSRF-Token": "{{$.CSRFToken}}"}'>Delete</button>
             </td>
         </tr>
         {{end}}
