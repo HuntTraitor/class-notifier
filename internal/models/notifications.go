@@ -2,6 +2,10 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"strings"
+
+	"github.com/lib/pq"
 )
 
 type Notification struct {
@@ -25,6 +29,13 @@ func (n *NotificationModel) Insert(email string, classid int, expires int) error
 
 	_, err = tx.Exec(stmt, email, classid, expires)
 	if err != nil {
+		var pqError *pq.Error
+		//checks if error is a unique constraint violation
+		if errors.As(err, &pqError) {
+			if pqError.Code == "23505" && strings.Contains(pqError.Message, "unique_notification") {
+				return ErrDuplicateNotification
+			}
+		}
 		return err
 	}
 

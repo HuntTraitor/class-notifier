@@ -115,8 +115,14 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 	email := app.sessionManager.GetString(r.Context(), "authenticatedUserEmail")
 
 	err = app.notifications.Insert(email, classid, expires)
+	//check if error violates unique constraint
 	if err != nil {
-		app.serverError(w, r, err)
+		if errors.Is(err, models.ErrDuplicateNotification) {
+			app.sessionManager.Put(r.Context(), "flash", "Class notification already exists")
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		} else {
+			app.serverError(w, r, err)
+		}
 		return
 	}
 
@@ -137,6 +143,7 @@ func (app *application) deleteNotification(w http.ResponseWriter, r *http.Reques
 
 	err = app.notifications.Delete(notificationid)
 	if err != nil {
+		fmt.Println(err)
 		app.serverError(w, r, err)
 		return
 	}
