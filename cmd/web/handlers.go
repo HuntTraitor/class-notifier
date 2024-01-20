@@ -118,7 +118,7 @@ func (app *application) addNotification(w http.ResponseWriter, r *http.Request) 
 	//check if error violates unique constraint
 	if err != nil {
 		if errors.Is(err, models.ErrDuplicateNotification) {
-			app.sessionManager.Put(r.Context(), "flash", "Class notification already exists")
+			app.sessionManager.Put(r.Context(), "flash", DuplicateNotificationFlashError)
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		} else {
 			app.serverError(w, r, err)

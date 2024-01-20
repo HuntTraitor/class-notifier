@@ -16,7 +16,11 @@
     {{template "nav" .}}
     <main>
         {{with .Flash}}
-            <div class="flash">{{.}}</div>
+            {{if isFlashError .}}
+                <div class="flash-error">{{.}}</div>
+            {{else}}
+                <div class="flash">{{.}}</div>
+            {{end}}
         {{end}}
         {{template "main" .}}
     </main>

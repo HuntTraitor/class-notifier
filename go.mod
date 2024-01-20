@@ -20,3 +20,5 @@ require github.com/go-playground/form/v4 v4.2.1
 require golang.org/x/crypto v0.18.0
 
 require github.com/justinas/nosurf v1.1.1
+
+require golang.org/x/net v0.20.0 // indirect

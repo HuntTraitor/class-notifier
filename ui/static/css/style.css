@@ -106,3 +106,13 @@ nav {
     align-items: center;
     gap: 25px;
 }
+
+.flash {
+    text-align: center;
+    background-color: green;
+}
+
+.flash-error {
+    text-align: center;
+    background-color: red;
+}

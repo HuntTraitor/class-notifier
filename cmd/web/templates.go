@@ -19,6 +19,14 @@ type templateData struct {
 	CSRFToken       string
 }
 
+func isFlashError(flash string) bool {
+	return flashErrors[flash]
+}
+
+var functions = template.FuncMap{
+	"isFlashError": isFlashError,
+}
+
 func newTemplateCache() (map[string]*template.Template, error) {
 
 	cache := map[string]*template.Template{}
@@ -40,7 +48,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		}
 
 		//parse the template files into ts
-		ts, err := template.New(name).ParseFS(ui.Files, patterns...)
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
