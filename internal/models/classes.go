@@ -5,6 +5,12 @@ import (
 	"errors"
 )
 
+type ClassModelInterface interface {
+	Insert(classid int, name string, link string, professor string) (int, error)
+	Get(id int) (Class, error)
+	Classlist()([]Class, error)
+}
+
 type Class struct {
 	ClassID   int
 	Name      string

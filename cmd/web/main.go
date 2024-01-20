@@ -24,9 +24,9 @@ import (
 // like middleware and logging
 type application struct {
 	logger         *slog.Logger
-	classes        *models.ClassModel
-	notifications  *models.NotificationModel
-	users          *models.UserModel
+	classes        models.ClassModelInterface
+	notifications  models.NotificationModelInterface
+	users          models.UserModelInterface
 	sessionManager *scs.SessionManager
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
