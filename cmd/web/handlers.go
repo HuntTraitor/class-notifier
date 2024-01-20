@@ -26,6 +26,10 @@ type userLoginForm struct {
 	validator.Validator `form:"-"`
 }
 
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	//fetches classes from database for every call to home even if user is not authenticated
 	classes, err := app.classes.Classlist()
