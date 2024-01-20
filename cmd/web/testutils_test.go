@@ -28,13 +28,13 @@ func newTestApplication(t *testing.T) *application {
 	sessionManager.Lifetime = 12 * time.Hour
 	sessionManager.Cookie.Secure = true
 
-	return &application {
-		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
-		classes: &mocks.ClassModel{},
-		notifications: &mocks.NotificationModel{},
-		users: &mocks.UserModel{},
-		templateCache: templateCache,
-		formDecoder: formDecoder,
+	return &application{
+		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
+		classes:        &mocks.ClassModel{},
+		notifications:  &mocks.NotificationModel{},
+		users:          &mocks.UserModel{},
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}
 }

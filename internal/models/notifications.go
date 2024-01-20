@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 )
 
-type NotificationModelInterface interface{
+type NotificationModelInterface interface {
 	Insert(email string, classid int, expires int) error
 	Delete(notification int) error
 	NotificationList(email string) ([]Notification, error)

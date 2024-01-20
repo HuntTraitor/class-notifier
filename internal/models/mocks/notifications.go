@@ -4,13 +4,13 @@ import (
 	"github.com/hunttraitor/class-notifier/internal/models"
 )
 
-var mockNotification = models.Notification {
+var mockNotification = models.Notification{
 	NotificationID: 1,
-	Name: "Mock Class",
-	Link: "www.example.com",
+	Name:           "Mock Class",
+	Link:           "www.example.com",
 }
 
-type NotificationModel struct {}
+type NotificationModel struct{}
 
 func (m *NotificationModel) Insert(email string, classid int, expires int) error {
 	return nil

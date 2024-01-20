@@ -4,11 +4,11 @@ import (
 	"github.com/hunttraitor/class-notifier/internal/models"
 )
 
-var mockClass = models.Class {
-	ClassID: 1,
-	Name: "Mock class",
-	Link: "www.example.com",
-	Professor: "CoolGuys77",
+var mockClass = models.Class{
+	ClassID:   1,
+	Name:      "Mock class",
+	Link:      "www.testclass.com",
+	Professor: "TestProfessor",
 }
 
 type ClassModel struct{}
