@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"testing"
+	"net/url"
 
 	"github.com/hunttraitor/class-notifier/internal/assert"
 )
@@ -70,6 +71,152 @@ func TestViewClass(t *testing.T) {
 
 			if tt.wantBody != "" {
 				assert.StringContains(t, body, tt.wantBody)
+			}
+		})
+	}
+}
+
+func TestUserSignup(t *testing.T) {
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
+
+	//make get request and extract the token from it
+	_, _, body := ts.get(t, "/user/signup")
+	validCSRFToken := extractCSRFToken(t, body)
+
+	const (
+		validName = "Hunter"
+		validPassword = "validPa$$word"
+		validConfirmPassword = "validPa$$word"
+		validEmail = "htratar@ucsc.edu"
+		formTag = `<form action="/user/signup" method="POST" novalidate>`
+	)
+
+	tests := []struct {
+		name string
+		userName string
+		userEmail string
+		userPassword string
+		userConfirmPassword string
+		csrfToken string
+		wantCode int
+		wantFormTag string
+	}{
+		{
+			name: "Valid submission",
+			userName: validName,
+			userEmail: validEmail,
+			userPassword: validPassword,
+			userConfirmPassword: validConfirmPassword,
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusSeeOther,
+		},
+		{
+			name: "Invalid CSRF Token",
+			userName: validName,
+			userEmail: validEmail,
+			userPassword: validPassword,
+			userConfirmPassword: validConfirmPassword,
+			csrfToken: "wrongToken",
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			name: "Empty name",
+			userName: "",
+			userEmail: validEmail,
+			userPassword: validPassword,
+			userConfirmPassword: validConfirmPassword,
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+		{
+			name: "Empty email",
+			userName: validName,
+			userEmail: "",
+			userPassword: validPassword,
+			userConfirmPassword: validConfirmPassword,
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+		{
+			name: "Empty password",
+			userName: validName,
+			userEmail: validEmail,
+			userPassword: "",
+			userConfirmPassword: validConfirmPassword,
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+		{
+			name: "Empty confirmation password",
+			userName: validName,
+			userEmail: validEmail,
+			userPassword: validPassword,
+			userConfirmPassword: "",
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+		{
+			name: "Invlid email",
+			userName: validName,
+			userEmail: "htratar@ucsc.",
+			userPassword: validPassword,
+			userConfirmPassword: validConfirmPassword,
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+		{
+			name: "Short password",
+			userName: validName,
+			userEmail: validEmail,
+			userPassword: "pa$$",
+			userConfirmPassword: "pa$$",
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+		{
+			name: "Passwords don't match",
+			userName: validName,
+			userEmail: validEmail,
+			userPassword: validPassword,
+			userConfirmPassword: "validpa$$$word",
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+		{
+			name: "Duplicate email",
+			userName: validName,
+			userEmail: "dupe@example.com",
+			userPassword: validPassword,
+			userConfirmPassword: validConfirmPassword,
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusUnprocessableEntity,
+			wantFormTag: formTag,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			form := url.Values{}
+			form.Add("name", tt.userName)
+			form.Add("email", tt.userEmail)
+			form.Add("password", tt.userPassword)
+			form.Add("confirmedpassword", tt.userConfirmPassword)
+			form.Add("csrf_token", tt.csrfToken)
+			
+			code, _, body := ts.postForm(t, "/user/signup", form)
+			assert.Equal(t, code, tt.wantCode)
+			
+			if tt.wantFormTag != "" {
+				assert.StringContains(t, body, tt.wantFormTag)
 			}
 		})
 	}
