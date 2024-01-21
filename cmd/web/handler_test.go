@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
-	"testing"
 	"net/url"
+	"testing"
 
 	"github.com/hunttraitor/class-notifier/internal/assert"
 )
@@ -86,120 +86,120 @@ func TestUserSignup(t *testing.T) {
 	validCSRFToken := extractCSRFToken(t, body)
 
 	const (
-		validName = "Hunter"
-		validPassword = "validPa$$word"
+		validName            = "Hunter"
+		validPassword        = "validPa$$word"
 		validConfirmPassword = "validPa$$word"
-		validEmail = "htratar@ucsc.edu"
-		formTag = `<form action="/user/signup" method="POST" novalidate>`
+		validEmail           = "htratar@ucsc.edu"
+		formTag              = `<form action="/user/signup" method="POST" novalidate>`
 	)
 
 	tests := []struct {
-		name string
-		userName string
-		userEmail string
-		userPassword string
+		name                string
+		userName            string
+		userEmail           string
+		userPassword        string
 		userConfirmPassword string
-		csrfToken string
-		wantCode int
-		wantFormTag string
+		csrfToken           string
+		wantCode            int
+		wantFormTag         string
 	}{
 		{
-			name: "Valid submission",
-			userName: validName,
-			userEmail: validEmail,
-			userPassword: validPassword,
+			name:                "Valid submission",
+			userName:            validName,
+			userEmail:           validEmail,
+			userPassword:        validPassword,
 			userConfirmPassword: validConfirmPassword,
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusSeeOther,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusSeeOther,
 		},
 		{
-			name: "Invalid CSRF Token",
-			userName: validName,
-			userEmail: validEmail,
-			userPassword: validPassword,
+			name:                "Invalid CSRF Token",
+			userName:            validName,
+			userEmail:           validEmail,
+			userPassword:        validPassword,
 			userConfirmPassword: validConfirmPassword,
-			csrfToken: "wrongToken",
-			wantCode: http.StatusBadRequest,
+			csrfToken:           "wrongToken",
+			wantCode:            http.StatusBadRequest,
 		},
 		{
-			name: "Empty name",
-			userName: "",
-			userEmail: validEmail,
-			userPassword: validPassword,
+			name:                "Empty name",
+			userName:            "",
+			userEmail:           validEmail,
+			userPassword:        validPassword,
 			userConfirmPassword: validConfirmPassword,
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 		{
-			name: "Empty email",
-			userName: validName,
-			userEmail: "",
-			userPassword: validPassword,
+			name:                "Empty email",
+			userName:            validName,
+			userEmail:           "",
+			userPassword:        validPassword,
 			userConfirmPassword: validConfirmPassword,
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 		{
-			name: "Empty password",
-			userName: validName,
-			userEmail: validEmail,
-			userPassword: "",
+			name:                "Empty password",
+			userName:            validName,
+			userEmail:           validEmail,
+			userPassword:        "",
 			userConfirmPassword: validConfirmPassword,
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 		{
-			name: "Empty confirmation password",
-			userName: validName,
-			userEmail: validEmail,
-			userPassword: validPassword,
+			name:                "Empty confirmation password",
+			userName:            validName,
+			userEmail:           validEmail,
+			userPassword:        validPassword,
 			userConfirmPassword: "",
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 		{
-			name: "Invlid email",
-			userName: validName,
-			userEmail: "htratar@ucsc.",
-			userPassword: validPassword,
+			name:                "Invlid email",
+			userName:            validName,
+			userEmail:           "htratar@ucsc.",
+			userPassword:        validPassword,
 			userConfirmPassword: validConfirmPassword,
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 		{
-			name: "Short password",
-			userName: validName,
-			userEmail: validEmail,
-			userPassword: "pa$$",
+			name:                "Short password",
+			userName:            validName,
+			userEmail:           validEmail,
+			userPassword:        "pa$$",
 			userConfirmPassword: "pa$$",
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 		{
-			name: "Passwords don't match",
-			userName: validName,
-			userEmail: validEmail,
-			userPassword: validPassword,
+			name:                "Passwords don't match",
+			userName:            validName,
+			userEmail:           validEmail,
+			userPassword:        validPassword,
 			userConfirmPassword: "validpa$$$word",
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 		{
-			name: "Duplicate email",
-			userName: validName,
-			userEmail: "dupe@example.com",
-			userPassword: validPassword,
+			name:                "Duplicate email",
+			userName:            validName,
+			userEmail:           "dupe@example.com",
+			userPassword:        validPassword,
 			userConfirmPassword: validConfirmPassword,
-			csrfToken: validCSRFToken,
-			wantCode: http.StatusUnprocessableEntity,
-			wantFormTag: formTag,
+			csrfToken:           validCSRFToken,
+			wantCode:            http.StatusUnprocessableEntity,
+			wantFormTag:         formTag,
 		},
 	}
 
@@ -211,10 +211,10 @@ func TestUserSignup(t *testing.T) {
 			form.Add("password", tt.userPassword)
 			form.Add("confirmedpassword", tt.userConfirmPassword)
 			form.Add("csrf_token", tt.csrfToken)
-			
+
 			code, _, body := ts.postForm(t, "/user/signup", form)
 			assert.Equal(t, code, tt.wantCode)
-			
+
 			if tt.wantFormTag != "" {
 				assert.StringContains(t, body, tt.wantFormTag)
 			}

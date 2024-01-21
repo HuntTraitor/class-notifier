@@ -2,16 +2,16 @@ package main
 
 import (
 	"bytes"
-	"io"
 	"html"
-	"regexp"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
+	"net/url"
+	"regexp"
 	"testing"
 	"time"
-	"net/url"
 
 	"github.com/hunttraitor/class-notifier/internal/models/mocks"
 
@@ -19,7 +19,7 @@ import (
 	"github.com/go-playground/form/v4"
 )
 
-//regex that captures csrf token value from html
+// regex that captures csrf token value from html
 var csrfTokenRX = regexp.MustCompile(`<input type="hidden" name="csrf_token" value="(.+)">`)
 
 func extractCSRFToken(t *testing.T, body string) string {
