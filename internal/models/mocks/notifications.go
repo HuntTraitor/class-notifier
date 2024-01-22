@@ -6,8 +6,8 @@ import (
 
 var mockNotification = models.Notification{
 	NotificationID: 1,
-	Name:           "Mock Class",
-	Link:           "www.example.com",
+	Name:           "Mock class",
+	Link:           "www.testclass.com",
 }
 
 type NotificationModel struct{}

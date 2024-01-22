@@ -76,6 +76,53 @@ func TestViewClass(t *testing.T) {
 	}
 }
 
+func TestAddNotification(t *testing.T) {
+	app := newTestApplication(t)
+	//New test server where every route authenticates the user automatically
+	ts := newTestServer(t, app.sessionManager.LoadAndSave(app.mockAuthentication(app.routes())))
+	defer ts.Close()
+	
+	_, _, body := ts.get(t, "/")
+	validCSRFToken := extractCSRFToken(t, body)
+
+	const (
+		validNotification = "1"
+	)
+
+	//we dont need to test for invalid notification because the database will handle that
+	tests := []struct {
+		name string
+		notification string
+		csrfToken string
+		wantCode int
+		wantFormTag string
+	}{
+		{
+			name: "Successful submission",
+			notification: "1",
+			csrfToken: validCSRFToken,
+			wantCode: http.StatusSeeOther,
+		},
+		{
+			name: "Invalid CSRFtoken",
+			notification: "1",
+			csrfToken: "wrongToken",
+			wantCode: http.StatusBadRequest,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			form := url.Values{}
+			form.Add("classId", tt.notification)
+			form.Add("csrf_token", tt.csrfToken)
+
+			code, _, _ := ts.postForm(t, "/notification/add", form)
+			assert.Equal(t, code, tt.wantCode)
+		})
+	}
+}
+
 func TestUserSignup(t *testing.T) {
 	app := newTestApplication(t)
 	ts := newTestServer(t, app.routes())
