@@ -13,7 +13,12 @@ var mockNotification = models.Notification{
 type NotificationModel struct{}
 
 func (m *NotificationModel) Insert(email string, classid int, expires int) error {
-	return nil
+	switch classid {
+	case 1:
+		return models.ErrDuplicateNotification
+	default:
+		return nil
+	}
 }
 
 func (m *NotificationModel) Delete(notificationid int) error {

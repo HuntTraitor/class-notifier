@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"html"
 	"io"
 	"log/slog"
@@ -12,7 +13,6 @@ import (
 	"regexp"
 	"testing"
 	"time"
-	"context"
 
 	"github.com/hunttraitor/class-notifier/internal/models/mocks"
 
@@ -108,8 +108,8 @@ func (ts *testServer) postForm(t *testing.T, urlPath string, form url.Values) (i
 }
 
 func (app *application) mockAuthentication(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
-        next.ServeHTTP(w, r.WithContext(ctx))
-    })
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
