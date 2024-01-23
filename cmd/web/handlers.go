@@ -147,7 +147,6 @@ func (app *application) deleteNotification(w http.ResponseWriter, r *http.Reques
 
 	err = app.notifications.Delete(notificationid)
 	if err != nil {
-		fmt.Println(err)
 		app.serverError(w, r, err)
 		return
 	}
@@ -158,6 +157,7 @@ func (app *application) deleteNotification(w http.ResponseWriter, r *http.Reques
 	app.redirect(w)
 }
 
+// will add a page later that displays these nicely!
 func (app *application) viewNotifications(w http.ResponseWriter, r *http.Request) {
 
 	classes, err := app.notifications.NotificationList("htratar@ucsc.edu")

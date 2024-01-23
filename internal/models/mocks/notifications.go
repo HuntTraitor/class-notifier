@@ -16,13 +16,20 @@ func (m *NotificationModel) Insert(email string, classid int, expires int) error
 	switch classid {
 	case 1:
 		return models.ErrDuplicateNotification
+	case 2:
+		return models.ErrNoRecord
 	default:
 		return nil
 	}
 }
 
 func (m *NotificationModel) Delete(notificationid int) error {
-	return nil
+	switch notificationid {
+	case 2:
+		return models.ErrNoRecord
+	default:
+		return nil
+	}
 }
 
 func (m *NotificationModel) NotificationList(email string) ([]models.Notification, error) {

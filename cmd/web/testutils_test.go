@@ -90,6 +90,26 @@ func (ts *testServer) get(t *testing.T, urlPath string) (int, http.Header, strin
 	return rs.StatusCode, rs.Header, string(body)
 }
 
+func (ts *testServer) delete(t *testing.T, urlPath string, csrfToken string) (int, http.Header, string) {
+	req, err := http.NewRequest(http.MethodDelete, ts.URL+urlPath, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	req.Header.Set("X-CSRF-Token", csrfToken)
+	rs, err := ts.Client().Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rs.Body.Close()
+	body, err := io.ReadAll(rs.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body = bytes.TrimSpace(body)
+	return rs.StatusCode, rs.Header, string(body)
+}
+
 func (ts *testServer) postForm(t *testing.T, urlPath string, form url.Values) (int, http.Header, string) {
 	rs, err := ts.Client().PostForm(ts.URL+urlPath, form)
 	if err != nil {

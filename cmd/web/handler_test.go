@@ -109,7 +109,8 @@ func TestAddNotification(t *testing.T) {
 	validCSRFToken := extractCSRFToken(t, body)
 
 	const (
-		validNotification = "1"
+		existingNotification = "1"
+		validNotification    = "3"
 	)
 
 	tests := []struct {
@@ -117,25 +118,30 @@ func TestAddNotification(t *testing.T) {
 		notification string
 		csrfToken    string
 		wantCode     int
-		wantFormTag  string
 	}{
 		{
 			name:         "Successful submission",
-			notification: "2",
+			notification: validNotification,
 			csrfToken:    validCSRFToken,
 			wantCode:     http.StatusSeeOther,
 		},
 		{
 			name:         "Invalid CSRFtoken",
-			notification: "2",
+			notification: validNotification,
 			csrfToken:    "wrongToken",
 			wantCode:     http.StatusBadRequest,
 		},
 		{
 			name:         "Duplicate submission",
-			notification: "1",
+			notification: existingNotification,
 			csrfToken:    validCSRFToken,
 			wantCode:     http.StatusSeeOther,
+		},
+		{
+			name:         "Invlid Submission",
+			notification: "2",
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusInternalServerError,
 		},
 	}
 
@@ -147,6 +153,63 @@ func TestAddNotification(t *testing.T) {
 
 			code, _, _ := ts.postForm(t, "/notification/add", form)
 			assert.Equal(t, code, tt.wantCode)
+		})
+	}
+}
+
+func TestDeleteNotification(t *testing.T) {
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.sessionManager.LoadAndSave(app.mockAuthentication(app.routes())))
+	defer ts.Close()
+
+	_, _, body := ts.get(t, "/")
+	validCSRFToken := extractCSRFToken(t, body)
+
+	const (
+		validNotification = "1"
+	)
+
+	tests := []struct {
+		name            string
+		notificationURL string
+		csrfToken       string
+		wantCode        int
+		wantBody        string
+	}{
+		{
+			name:            "Successful deletion",
+			notificationURL: "/notification/delete/1",
+			csrfToken:       validCSRFToken,
+			wantCode:        http.StatusOK,
+		},
+		{
+			name:            "Invalid CSRFToken",
+			notificationURL: "/notification/delete/1",
+			csrfToken:       "wrongToken",
+			wantCode:        http.StatusBadRequest,
+			wantBody:        "Bad Request",
+		},
+		{
+			name:            "Invalid Deletion",
+			notificationURL: "/notification/delete/2",
+			csrfToken:       validCSRFToken,
+			wantCode:        http.StatusInternalServerError,
+			wantBody:        "Internal Server Error",
+		},
+		{
+			name:            "Invalid ID",
+			notificationURL: "/notification/delete/InvalidID",
+			csrfToken:       validCSRFToken,
+			wantCode:        http.StatusNotFound,
+			wantBody:        "Not Found",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			code, _, body := ts.delete(t, tt.notificationURL, tt.csrfToken)
+			assert.Equal(t, code, tt.wantCode)
+			assert.Equal(t, body, tt.wantBody)
 		})
 	}
 }
