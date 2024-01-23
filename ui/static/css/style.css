@@ -116,3 +116,7 @@ nav {
     text-align: center;
     background-color: red;
 }
+
+.notification-title {
+    margin-bottom: 5px;
+}

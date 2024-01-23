@@ -15,6 +15,7 @@
 </div>
 <table class="class-table">
     {{if .IsAuthenticated}}
+    <h1 class="notification-title">Notification List</h1>
         {{range .Notifications}}
         <tr>
             <td><a href="{{.Link}}">{{.Name}}</a></td>

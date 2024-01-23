@@ -19,6 +19,29 @@ func TestPing(t *testing.T) {
 	assert.Equal(t, body, "OK")
 }
 
+func TestHome(t *testing.T) {
+	app := newTestApplication(t)
+
+	//test for unauthenticated home page
+	unauthTS := newTestServer(t, app.routes())
+	defer unauthTS.Close()
+
+	t.Run("Unauthenticated Home Page Visit", func(t *testing.T) {
+		code, _, body := unauthTS.get(t, "/")
+		assert.Equal(t, code, http.StatusOK)
+		assert.StringContains(t, body, `<h1>Log in to view notifications</h1>`)
+	})
+
+	//test for authenticated home page
+	authTS := newTestServer(t, app.sessionManager.LoadAndSave(app.mockAuthentication(app.routes())))
+	defer authTS.Close()
+	t.Run("Authenticated Home Page Visit", func(t *testing.T) {
+		code, _, body := authTS.get(t, "/")
+		assert.Equal(t, code, http.StatusOK)
+		assert.StringContains(t, body, `<h1 class="notification-title">Notification List</h1>`)
+	})
+}
+
 func TestViewClass(t *testing.T) {
 	app := newTestApplication(t)
 
