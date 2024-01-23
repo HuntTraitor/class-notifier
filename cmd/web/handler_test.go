@@ -8,6 +8,8 @@ import (
 	"github.com/hunttraitor/class-notifier/internal/assert"
 )
 
+// go test -covermode=count -coverprofile=/tmp/profile.out ./...
+// go tool cover -html=/tmp/profile.out -o coverage.html
 func TestPing(t *testing.T) {
 	app := newTestApplication(t)
 	ts := newTestServer(t, app.routes())
@@ -227,7 +229,7 @@ func TestUserSignup(t *testing.T) {
 		validName            = "Hunter"
 		validPassword        = "validPa$$word"
 		validConfirmPassword = "validPa$$word"
-		validEmail           = "htratar@ucsc.edu"
+		validEmail           = "test@gmail.com"
 		formTag              = `<form action="/user/signup" method="POST" novalidate>`
 	)
 
@@ -302,7 +304,7 @@ func TestUserSignup(t *testing.T) {
 		{
 			name:                "Invlid email",
 			userName:            validName,
-			userEmail:           "htratar@ucsc.",
+			userEmail:           "test@gmail.",
 			userPassword:        validPassword,
 			userConfirmPassword: validConfirmPassword,
 			csrfToken:           validCSRFToken,
@@ -356,6 +358,161 @@ func TestUserSignup(t *testing.T) {
 			if tt.wantFormTag != "" {
 				assert.StringContains(t, body, tt.wantFormTag)
 			}
+		})
+	}
+}
+
+func TestUserLogin(t *testing.T) {
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
+
+	_, _, body := ts.get(t, "/user/login")
+	validCSRFToken := extractCSRFToken(t, body)
+
+	const (
+		validEmail    = "test@gmail.com"
+		validPassword = "pa$$word"
+		formTag       = `<form action="/user/login" method="POST" nonvalidate>`
+	)
+
+	tests := []struct {
+		name         string
+		userEmail    string
+		userPassword string
+		csrfToken    string
+		wantCode     int
+		wantFormTag  string
+	}{
+		{
+			name:         "Valid Submission",
+			userEmail:    validEmail,
+			userPassword: validPassword,
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusSeeOther,
+		},
+		{
+			name:         "Invalid CSRFToken",
+			userEmail:    validEmail,
+			userPassword: validPassword,
+			csrfToken:    "wrongToken",
+			wantCode:     http.StatusBadRequest,
+		},
+		{
+			name:         "Invalid Email Credentials",
+			userEmail:    "test1@gmail.com",
+			userPassword: validPassword,
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Invalid Password Credentials",
+			userEmail:    validEmail,
+			userPassword: "invalid password",
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Empty Email",
+			userEmail:    "",
+			userPassword: validPassword,
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Empty Password",
+			userEmail:    validEmail,
+			userPassword: "",
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Invalid Email",
+			userEmail:    "test@gmail.",
+			userPassword: validPassword,
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+		{
+			name:         "Short Password",
+			userEmail:    validEmail,
+			userPassword: "pa$$",
+			csrfToken:    validCSRFToken,
+			wantCode:     http.StatusUnprocessableEntity,
+			wantFormTag:  formTag,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			form := url.Values{}
+			form.Add("email", tt.userEmail)
+			form.Add("password", tt.userPassword)
+			form.Add("csrf_token", tt.csrfToken)
+
+			code, _, body := ts.postForm(t, "/user/login", form)
+			assert.Equal(t, code, tt.wantCode)
+
+			if body != "" {
+				assert.StringContains(t, body, tt.wantFormTag)
+			}
+		})
+	}
+}
+
+func TestUserLogout(t *testing.T) {
+	app := newTestApplication(t)
+
+	//test for unauthenticated logout (should still work)
+	unauthTS := newTestServer(t, app.routes())
+	defer unauthTS.Close()
+
+	_, _, body := unauthTS.get(t, "/")
+	validCSRFToken := extractCSRFToken(t, body)
+
+	t.Run("Unauthenticated Logout", func(t *testing.T) {
+		form := url.Values{}
+		form.Add("csrf_token", validCSRFToken)
+		code, _, _ := unauthTS.postForm(t, "/user/logout", form)
+		assert.Equal(t, code, http.StatusSeeOther)
+	})
+
+	//test for authenticated logout
+	authTS := newTestServer(t, app.sessionManager.LoadAndSave(app.mockAuthentication(app.routes())))
+	defer authTS.Close()
+
+	_, _, body = authTS.get(t, "/")
+	validCSRFToken = extractCSRFToken(t, body)
+
+	tests := []struct {
+		name      string
+		csrfToken string
+		wantCode  int
+	}{
+		{
+			name:      "Authenticated Logout",
+			csrfToken: validCSRFToken,
+			wantCode:  http.StatusSeeOther,
+		},
+		{
+			name:      "Invalid CSRFToken",
+			csrfToken: "Wrong Token",
+			wantCode:  http.StatusBadRequest,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			form := url.Values{}
+			form.Add("csrf_token", tt.csrfToken)
+
+			code, _, _ := authTS.postForm(t, "/user/logout", form)
+			assert.Equal(t, code, tt.wantCode)
 		})
 	}
 }
