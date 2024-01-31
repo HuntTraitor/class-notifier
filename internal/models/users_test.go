@@ -6,7 +6,6 @@ import (
 	"github.com/hunttraitor/class-notifier/internal/assert"
 )
 
-
 func TestUserModelExists(t *testing.T) {
 	//-short flag skips test
 	if testing.Short() {
@@ -52,24 +51,24 @@ func TestUserModelInsert(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
-		userName string
-		email string
-		password string
+		name      string
+		userName  string
+		email     string
+		password  string
 		wantError error
 	}{
 		{
-			name: "Valid Insert",
-			userName: "Test User",
-			email: "test@gmail.com",
-			password: "pa$$word",
+			name:      "Valid Insert",
+			userName:  "Test User",
+			email:     "test@gmail.com",
+			password:  "pa$$word",
 			wantError: nil,
 		},
 		{
-			name: "Duplicate Insert",
-			userName: "Hunter",
-			email: "hunter@gmail.com",
-			password: "pa$$word",
+			name:      "Duplicate Insert",
+			userName:  "Hunter",
+			email:     "hunter@gmail.com",
+			password:  "pa$$word",
 			wantError: ErrDuplicateEmail,
 		},
 	}
@@ -90,32 +89,32 @@ func TestUserModelAuthenticate(t *testing.T) {
 	}
 
 	tests := []struct {
-		name string
-		email string
-		password string
+		name       string
+		email      string
+		password   string
 		wantUserID int
-		wantError error
+		wantError  error
 	}{
 		{
-			name: "Valid Authentication",
-			email: "testuserauth@gmail.com",
-			password: "pa$$word",
+			name:       "Valid Authentication",
+			email:      "testuserauth@gmail.com",
+			password:   "pa$$word",
 			wantUserID: 2,
-			wantError: nil,
+			wantError:  nil,
 		},
 		{
-			name: "Invalid email",
-			email: "invalidEmail@gmail.com",
-			password: "pa$$word",
+			name:       "Invalid email",
+			email:      "invalidEmail@gmail.com",
+			password:   "pa$$word",
 			wantUserID: 0,
-			wantError: ErrInvalidCredentials,
+			wantError:  ErrInvalidCredentials,
 		},
 		{
-			name: "Invalid Password",
-			email: "testuserauth@gmail.com",
-			password: "wrongPassword",
+			name:       "Invalid Password",
+			email:      "testuserauth@gmail.com",
+			password:   "wrongPassword",
 			wantUserID: 0,
-			wantError: ErrInvalidCredentials,
+			wantError:  ErrInvalidCredentials,
 		},
 	}
 

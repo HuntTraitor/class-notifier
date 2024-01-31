@@ -29,3 +29,10 @@ INSERT INTO users (name, email, hashed_password, created) VALUES (
     '$2a$12$NuTjWXm3KKntReFwyBVHyuf/to.HEwTy.eS206TNfkGfr6HzGJSWG',
     '2022-01-01 10:23:56'
 );
+
+INSERT INTO classes (classid, name, link, professor) VALUES (
+    1,
+    'Test Class',
+    'testclass.com',
+    'Professor Test'
+);

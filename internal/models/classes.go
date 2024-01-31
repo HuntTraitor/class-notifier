@@ -3,6 +3,9 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"strings"
+
+	"github.com/lib/pq"
 )
 
 type ClassModelInterface interface {
@@ -33,6 +36,13 @@ func (m *ClassModel) Insert(classid int, name string, link string, professor str
 
 	_, err = tx.Exec(stmt, classid, name, link, professor)
 	if err != nil {
+		var pqError *pq.Error
+
+		if errors.As(err, &pqError) {
+			if pqError.Code == "23505" && strings.Contains(pqError.Message, "classes_pkey") {
+				return 0, ErrDuplicateClass
+			}
+		}
 		return 0, err
 	}
 
@@ -51,7 +61,7 @@ func (m *ClassModel) Get(id int) (Class, error) {
 	row := m.DB.QueryRow(stmt, id)
 	var c Class
 
-	err := row.Scan(&c.ClassID, &c.Link, &c.Name, &c.Professor)
+	err := row.Scan(&c.ClassID, &c.Name, &c.Link, &c.Professor)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return Class{}, ErrNoRecord
