@@ -3,6 +3,7 @@ package models
 import (
 	"strings"
 	"testing"
+	"fmt"
 
 	"github.com/hunttraitor/class-notifier/internal/assert"
 )
@@ -23,11 +24,11 @@ func TestClassInsert(t *testing.T) {
 	}{
 		{
 			name:        "Valid Insert",
-			classID:     2,
+			classID:     3,
 			className:   "Valid Insert Class",
 			link:        "Validinsert.com",
 			professor:   "Valid Insert Professor",
-			wantClassID: 2,
+			wantClassID: 3,
 			wantError:   nil,
 		},
 		{
@@ -55,7 +56,7 @@ func TestClassInsert(t *testing.T) {
 
 func TestClassGet(t *testing.T) {
 	if testing.Short() {
-		t.Skip("models: skipping")
+		t.Skip("models: skipping integration test")
 	}
 
 	tests := []struct {
@@ -72,7 +73,7 @@ func TestClassGet(t *testing.T) {
 		},
 		{
 			name:      "Class Doesnt Exist",
-			id:        2,
+			id:        3,
 			wantError: ErrNoRecord,
 		},
 	}
@@ -90,4 +91,75 @@ func TestClassGet(t *testing.T) {
 			assert.Equal(t, err, tt.wantError)
 		})
 	}
+}
+
+func TestClassList(t *testing.T) {
+	if testing.Short() {
+		t.Skip("models: skipping integration test")
+	}
+
+	//chat this can't be real
+	var (
+		ValidClass = func(t *testing.T) []Class {
+			var ClassList []Class
+			t.Run("Initialization", func(t *testing.T) {
+				db := newTestDB(t)
+				m := ClassModel{db}
+				for i := 1; i <= 2; i++ {
+					Class, err := m.Get(i)
+					if err != nil {
+						t.Fatal(err)
+					}
+					ClassList = append(ClassList, Class)
+				}
+			})
+			return ClassList
+		}(t)
+	)
+
+	tests := []struct {
+		name string
+		wantClasses []Class
+		wantError error
+	}{
+		{
+			name: "Valid ClassList",
+			wantClasses: ValidClass,
+			wantError: nil,
+		},
+		{
+			name: "Empty ClassList",
+			wantClasses: []Class{},
+			wantError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db := newTestDB(t)
+			m := ClassModel{db}
+
+			fmt.Println(m)
+
+			ClassList, err := m.Classlist()
+			assert.Equal(t, ClassList, tt.wantClasses)
+			test := equalSlices(ClassList, tt.wantClasses)
+			assert.Equal(t, err, tt.wantError)
+		})
+	}
+
+}
+
+func equalSlices[T comparable](slice1, slice2 []T) bool {
+	if len(slice1) != len(slice2) {
+		return false
+	}
+
+	for i, v := range slice1 {
+		if v != slice2[i] {
+			return false
+		}
+	}
+
+	return true
 }

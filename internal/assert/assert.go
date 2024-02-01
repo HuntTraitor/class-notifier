@@ -28,3 +28,7 @@ func NilError(t *testing.T, actual error) {
 		t.Errorf("got %v; expected: nil", actual)
 	}
 }
+
+func SliceEqual[T comparable](t *testing.T, actual, expected[] T) {
+	
+}

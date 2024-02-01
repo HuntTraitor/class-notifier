@@ -36,3 +36,10 @@ INSERT INTO classes (classid, name, link, professor) VALUES (
     'testclass.com',
     'Professor Test'
 );
+
+INSERT INTO classes (classid, name, link, professor) VALUES (
+    2,
+    'Test Class 2',
+    'testclass2.com',
+    'Professor Test 2'
+);
