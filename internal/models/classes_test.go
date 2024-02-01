@@ -3,7 +3,6 @@ package models
 import (
 	"strings"
 	"testing"
-	"fmt"
 
 	"github.com/hunttraitor/class-notifier/internal/assert"
 )
@@ -127,11 +126,6 @@ func TestClassList(t *testing.T) {
 			wantClasses: ValidClass,
 			wantError: nil,
 		},
-		{
-			name: "Empty ClassList",
-			wantClasses: []Class{},
-			wantError: nil,
-		},
 	}
 
 	for _, tt := range tests {
@@ -139,27 +133,10 @@ func TestClassList(t *testing.T) {
 			db := newTestDB(t)
 			m := ClassModel{db}
 
-			fmt.Println(m)
-
 			ClassList, err := m.Classlist()
-			assert.Equal(t, ClassList, tt.wantClasses)
-			test := equalSlices(ClassList, tt.wantClasses)
+			assert.SliceEqual(t, ClassList, tt.wantClasses)
 			assert.Equal(t, err, tt.wantError)
 		})
 	}
 
-}
-
-func equalSlices[T comparable](slice1, slice2 []T) bool {
-	if len(slice1) != len(slice2) {
-		return false
-	}
-
-	for i, v := range slice1 {
-		if v != slice2[i] {
-			return false
-		}
-	}
-
-	return true
 }
