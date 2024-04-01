@@ -1,9 +1,9 @@
 package assert
 
 import (
+	"fmt"
 	"strings"
 	"testing"
-	"fmt"
 )
 
 func Equal[T comparable](t *testing.T, actual, expected T) {
@@ -30,7 +30,7 @@ func NilError(t *testing.T, actual error) {
 	}
 }
 
-func SliceEqual[T comparable](t *testing.T, actual, expected[] T) {
+func SliceEqual[T comparable](t *testing.T, actual, expected []T) {
 	t.Helper()
 	if len(actual) != len(expected) {
 		fmt.Println(actual)

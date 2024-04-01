@@ -43,3 +43,9 @@ INSERT INTO classes (classid, name, link, professor) VALUES (
     'testclass2.com',
     'Professor Test 2'
 );
+
+INSERT INTO notifications (email, classid, expires) VALUES (
+    'hunter@gmail.com',
+    1,
+    CURRENT_TIMESTAMP
+);

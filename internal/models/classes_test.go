@@ -105,11 +105,11 @@ func TestClassList(t *testing.T) {
 				db := newTestDB(t)
 				m := ClassModel{db}
 				for i := 1; i <= 2; i++ {
-					Class, err := m.Get(i)
+					class, err := m.Get(i)
 					if err != nil {
 						t.Fatal(err)
 					}
-					ClassList = append(ClassList, Class)
+					ClassList = append(ClassList, class)
 				}
 			})
 			return ClassList
@@ -117,14 +117,14 @@ func TestClassList(t *testing.T) {
 	)
 
 	tests := []struct {
-		name string
+		name        string
 		wantClasses []Class
-		wantError error
+		wantError   error
 	}{
 		{
-			name: "Valid ClassList",
+			name:        "Valid ClassList",
 			wantClasses: ValidClass,
-			wantError: nil,
+			wantError:   nil,
 		},
 	}
 
